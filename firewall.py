@@ -34,15 +34,15 @@ class Firewall (EventMixin):
         '''
         Read the CSV file
         '''
-        with open('firewall-policies.csv', 'rb') as rules:
+        with open(policyFile, 'rb') as rules:
             csvreader = csv.DictReader(rules) # Map into a dictionary
             for line in csvreader:
                 # Read MAC address. Convert string to Ethernet address using the EthAddr() function.
                 mac_0 = EthAddr(line['mac_0'])
                 mac_1 = EthAddr(line['mac_1'])
                 # Append to the array storing all MAC pair.
-                disbaled_MAC_pair.append((mac_0,mac_1))
-                disbaled_MAC_pair.append((mac_1,mac_0))
+                self.disbaled_MAC_pair.append((mac_0,mac_1))
+                self.disbaled_MAC_pair.append((mac_1,mac_0))
 
         log.debug("Enabling Firewall Module")
 
@@ -58,7 +58,7 @@ class Firewall (EventMixin):
             match = of.ofp_match() # Create a match
             match.dl_src = source # Source address
             match.dl_dst = destination # Destination address
-            message.priority = 99999 # Set priority
+            message.priority = 65535 # Set priority (between 0 and 65535)
             message.match = match
             message.actions.append(of.ofp_action_output(port=of.OFPP_NONE)) # Output to no where
             event.connection.send(message)
