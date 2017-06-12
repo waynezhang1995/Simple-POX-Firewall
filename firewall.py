@@ -7,6 +7,11 @@ Professor: Nick Feamster
 Teaching Assistant: Muhammad Shahbaz
 '''
 
+'''
+Yuwei Zhang
+V00805647
+'''
+
 from pox.core import core
 import pox.openflow.libopenflow_01 as of
 from pox.lib.revent import *
@@ -29,7 +34,7 @@ class Firewall (EventMixin):
 
     def __init__ (self):
         self.listenTo(core.openflow)
-        self.disbaled_MAC_pair = [] # Shore a tuple of MAC pair which will be installed in each switch.
+        self.disbaled_MAC_pair = [] # Shore a tuple of MAC pair which will be installed into the flow table of each switch.
 
         '''
         Read the CSV file
@@ -53,6 +58,7 @@ class Firewall (EventMixin):
         Iterate through the disbaled_MAC_pair array, and for each
         pair we install a rule in each OpenFlow switch
         '''
+
         for (source, destination) in self.disbaled_MAC_pair:
             message = of.ofp_flow_mod() # OpenFlow massage. Instructs a switch to install a flow
             match = of.ofp_match() # Create a match
@@ -60,8 +66,8 @@ class Firewall (EventMixin):
             match.dl_dst = destination # Destination address
             message.priority = 65535 # Set priority (between 0 and 65535)
             message.match = match
-            message.actions.append(of.ofp_action_output(port=of.OFPP_NONE)) # Output to no where
-            event.connection.send(message)
+            message.actions.append(of.ofp_action_output(port=of.OFPP_NONE)) # Output to no where (Drop the package)
+            event.connection.send(message) # Send instruction to the switch
 
         log.debug("Firewall rules installed on %s", dpidToStr(event.dpid))
 
