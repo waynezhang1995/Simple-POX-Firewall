@@ -47,7 +47,6 @@ class Firewall (EventMixin):
                 mac_1 = EthAddr(line['mac_1'])
                 # Append to the array storing all MAC pair.
                 self.disbaled_MAC_pair.append((mac_0,mac_1))
-                self.disbaled_MAC_pair.append((mac_1,mac_0))
 
         log.debug("Enabling Firewall Module")
 
@@ -60,6 +59,7 @@ class Firewall (EventMixin):
         '''
 
         for (source, destination) in self.disbaled_MAC_pair:
+
             message = of.ofp_flow_mod() # OpenFlow massage. Instructs a switch to install a flow
             match = of.ofp_match() # Create a match
             match.dl_src = source # Source address
